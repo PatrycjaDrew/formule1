@@ -22,19 +22,71 @@ typedef struct {
 
 Voiture voitures[NOMBRE_VOITURES];
 
+//trie les voitures pour afficher en premier la voiture avec le meilleurs temps le plus court et en dernier la voiture avec le meilleur temps le plus long
+int sortVoitures(const void *a, const void *b) {
+    Voiture *voitureA = (Voiture *)a;
+    Voiture *voitureB = (Voiture *)b;
 
-void init_voitures() {
-	int listeVoitures[NOMBRE_VOITURES] = {1, 11, 44, 63, 16, 55, 4, 81, 14, 18, 10, 31, 23, 2, 22, 3, 77, 24, 20, 27};
+    // Vérifie si l'une des voitures est OUT
+    if (voitureA->estOUT && voitureB->estOUT) {
+        return 0;  // Les deux sont OUT, garde l'ordre
+    }
+    if (voitureA->estOUT) {
+        return 1;  // voitureA est OUT, elle va en bas
+    }
+    if (voitureB->estOUT) {
+        return -1; // voitureB est OUT, elle va en bas
+    }
 
-	for (int i = 0; i < NOMBRE_VOITURES; i++) {
-        	voitures[i].numero = listeVoitures[i];
-        	voitures[i].temps_S1 = 0.0;
-        	voitures[i].temps_S2 = 0.0;
-        	voitures[i].temps_S3 = 0.0;
-        	voitures[i].meilleur_temps = 0.0;
-        	voitures[i].estOUT = false;
-        	voitures[i].estStand = false;
-            voitures[i].tours = 0;
+    // Trie normalement si aucune des deux n'est OUT
+    if (voitureA->meilleur_temps < voitureB->meilleur_temps) {
+        return -1;
+    } else if (voitureA->meilleur_temps > voitureB->meilleur_temps) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+
+
+void init_voitures(const char *nom) {
+    int listeVoitures[NOMBRE_VOITURES] = {1, 11, 44, 63, 16, 55, 4, 81, 14, 18, 10, 31, 23, 2, 22, 3, 77, 24, 20, 27};
+    if (strcmp(nom, "ALL") == 0){
+        for (int i = 0; i < NOMBRE_VOITURES; i++) {
+                voitures[i].numero = listeVoitures[i];
+                voitures[i].temps_S1 = 0.0;
+                voitures[i].temps_S2 = 0.0;
+                voitures[i].temps_S3 = 0.0;
+                voitures[i].meilleur_temps = 0.0;
+                voitures[i].estOUT = false;
+                voitures[i].estStand = false;
+                voitures[i].tours = 0;
+        }
+    }else if(strcmp(nom, "Q2") == 0){
+        qsort(voitures, NOMBRE_VOITURES, sizeof(Voiture), sortVoitures);
+        for (int i = 0; i < NOMBRE_VOITURES-5; i++) {
+                voitures[i].numero = listeVoitures[i];
+                voitures[i].temps_S1 = 0.0;
+                voitures[i].temps_S2 = 0.0;
+                voitures[i].temps_S3 = 0.0;
+                voitures[i].meilleur_temps = 0.0;
+                voitures[i].estOUT = false;
+                voitures[i].estStand = false;
+                voitures[i].tours = 0;
+        }
+    }else if(strcmp(nom, "Q3") == 0){
+        qsort(voitures, NOMBRE_VOITURES, sizeof(Voiture), sortVoitures);
+        for (int i = 0; i < NOMBRE_VOITURES-10; i++) {
+                voitures[i].numero = listeVoitures[i];
+                voitures[i].temps_S1 = 0.0;
+                voitures[i].temps_S2 = 0.0;
+                voitures[i].temps_S3 = 0.0;
+                voitures[i].meilleur_temps = 0.0;
+                voitures[i].estOUT = false;
+                voitures[i].estStand = false;
+                voitures[i].tours = 0;
+        }
     }
 }
 
@@ -182,20 +234,6 @@ void donne_tempsSecteur(){
     }
 }
 
-//trie les voitures pour afficher en premier la voiture avec le meilleurs temps le plus court et en dernier la voiture avec le meilleur temps le plus long
-int sortVoitures(const void *a, const void *b) {
-    Voiture *voitureA = (Voiture *)a;
-    Voiture *voitureB = (Voiture *)b;
-
-    if (voitureA->meilleur_temps < voitureB->meilleur_temps) {
-        return -1; 
-    } else if (voitureA->meilleur_temps > voitureB->meilleur_temps) {
-        return 1;  
-    } else {
-        return 0; 
-    }
-}
-
 //lance un essais
 void essais(int numEssais, int tours_nombre_max){
     
@@ -298,11 +336,14 @@ void qualificaiton(int numQuali){
 
 int main() {
     srand(time(NULL));
-    init_voitures();
+    init_voitures("ALL");
     int nbreTours = genere_nbre_tours(5, 7);
-    //essais(1, nbreTours);
+    essais(1, nbreTours);
+    init_voitures("ALL");
     qualificaiton(1);
+    init_voitures("Q2");
     qualificaiton(2);
+    init_voitures("Q3");
     qualificaiton(3);
     return 0;
 }
