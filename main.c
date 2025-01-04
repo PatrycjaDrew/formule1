@@ -213,18 +213,20 @@ int genere_nbre_tours(int min, int max) {
 }
 
 
-void arret_stand(){
+void arret_stand() {
     double temps = 0.0;
-    int voiture = genere_nbre_tours(0, NOMBRE_VOITURES);
-    while(temps == 0){
+    int voiture;
+
+    do {
         voiture = genere_nbre_tours(0, NOMBRE_VOITURES);
-        if(!voitures[voiture].estOUT){
-            temps = genere_temps(25, 30);
-        }
-    }
+    } while(voitures[voiture].estOUT); 
+
+    temps = genere_temps(25, 30);
+    
     voitures[voiture].estStand = true;
     voitures[voiture].standTemps = temps;
 }
+
 
 
 //attribue un temps alléatoire entre 25 et 45 secondes pour chaque section pour chaque voiture qui fait la course
