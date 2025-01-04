@@ -171,8 +171,10 @@ void ligneTableauQualif(int position, int numVoiture, float s1, float s2, float 
     const char *estStandTableau;
     if(out == 1){
         estOutTableau = " OUT ";
+        diff = -1;
     }else{
         estOutTableau = "     ";
+        
     }
 
     char standChar[10];
@@ -184,7 +186,7 @@ void ligneTableauQualif(int position, int numVoiture, float s1, float s2, float 
     }
 
 
-    printf("│ -%-2d- │ %-9d │ %.3f  │ %.3f  │ %.3f  │ %-14.3f │ %-16.3f │ %-8.3f │ %s │ %s │\n",position, numVoiture, s1, s2, s3, tempsTotal, meilleurTemps, diff, estStandTableau, estOutTableau);
+    printf("│ -%-2d- │ %-9d │ %.3f  │ %.3f  │ %.3f  │ %-14.3f │ %-16.3f │ %-8.3f │ %s │ %s │\n",position, numVoiture, s1, s2, s3, tempsTotal, meilleurTemps, (out ? 0.0 : diff), estStandTableau, estOutTableau);
 }
 
 void finTableau(const char *nomEpreuve){
