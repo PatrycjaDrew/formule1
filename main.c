@@ -213,25 +213,35 @@ int genere_nbre_tours(int min, int max) {
 }
 
 
-void arret_stand() {
+void arret_stand(int tour) {
     double temps = 0.0;
     int voiture;
 
-    do {
-        voiture = genere_nbre_tours(0, NOMBRE_VOITURES);
-    } while(voitures[voiture].estOUT); 
+    if(tour < NBRE_TOURS_QUALI - 1){
+        do {
+            voiture = genere_nbre_tours(0, NOMBRE_VOITURES);
+        } while(voitures[voiture].estOUT); 
 
-    temps = genere_temps(25, 30);
-    
-    voitures[voiture].estStand = true;
-    voitures[voiture].standTemps = temps;
+        temps = genere_temps(25, 30);
+        
+        voitures[voiture].estStand = true;
+        voitures[voiture].standTemps = temps;
+    }else{
+        for(int i = 0; i < NOMBRE_VOITURES; i++){
+            if(voitures[i].estOUT == false && voitures[i].estStand == false){
+                temps = genere_temps(25, 30);
+                voitures[i].estStand = true;
+                voitures[i].standTemps = temps;
+            }
+        }
+    }
 }
 
 
 
 //attribue un temps alléatoire entre 25 et 45 secondes pour chaque section pour chaque voiture qui fait la course
-void donne_tempsSecteur(){
-    arret_stand();
+void donne_tempsSecteur(int tour){
+    arret_stand(tour);
     for (int i = 0; i < NOMBRE_VOITURES; i++) {
         if (!voitures[i].estOUT) {
             voitures[i].temps_S1 = genere_temps(25.0, 45.0);
@@ -271,7 +281,7 @@ void essais(int numEssais, int tours_nombre_max){
     for(int tour = 1; tour < tours_nombre_max; tour++){
         system("clear");
         debutTableau(numEssais, tour, "Essais");
-        donne_tempsSecteur();
+        donne_tempsSecteur(tour);
 
         qsort(voitures, NOMBRE_VOITURES, sizeof(Voiture), sortVoitures);
 
@@ -295,7 +305,7 @@ void qualificaiton(int numQuali){
         system("clear");
         init_stand();
         debutTableau(numQuali, tour, "Qualification");
-        donne_tempsSecteur();
+        donne_tempsSecteur(tour);
 
         qsort(voitures, NOMBRE_VOITURES, sizeof(Voiture), sortVoitures);
 
