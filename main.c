@@ -119,6 +119,17 @@ typedef struct {
 MeilleursTemps meilleursTempsTotal = {0.0, -1, 0.0, -1, 0.0, -1, 0.0, -1};
 
 
+void init_tempsTotal() {
+    meilleursTempsTotal.meilleur_temps_tour = 0.0;
+    meilleursTempsTotal.voiture_temps_tour = -1;
+    meilleursTempsTotal.meilleur_S1 = 0.0;
+    meilleursTempsTotal.voiture_S1 = -1;
+    meilleursTempsTotal.meilleur_S2 = 0.0;
+    meilleursTempsTotal.voiture_S2 = -1;
+    meilleursTempsTotal.meilleur_S3 = 0.0;
+    meilleursTempsTotal.voiture_S3 = -1;
+}
+
 
 
 void afficher_voitures() {
@@ -381,13 +392,21 @@ void qualificaiton(int numQuali){
 int main() {
     srand(time(NULL));
     init_voitures("ALL");
+    init_tempsTotal();
+
     int nbreTours = genere_nbre_tours(5, 7);
     essais(1, nbreTours);
     init_voitures("ALL");
+    init_tempsTotal();
+
     qualificaiton(1);
     init_voitures("Q2");
+    init_tempsTotal();
+
     qualificaiton(2);
     init_voitures("Q3");
+    init_tempsTotal();
+
     qualificaiton(3);
     return 0;
 }
