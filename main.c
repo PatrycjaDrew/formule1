@@ -51,6 +51,38 @@ int sortVoitures(const void *a, const void *b) {
 
 
 
+void enregistrerResultats(const char *nomEpreuve, int numQuali) {
+    FILE *fichier;
+    char nomFichier[50];
+
+    qsort(voitures, NOMBRE_VOITURES, sizeof(Voiture), sortVoitures);
+    int positionCourse = 0;
+
+    sprintf(nomFichier, "resultats_%s_%d.txt", nomEpreuve, numQuali);
+
+    fichier = fopen(nomFichier, "w");
+    if (fichier == NULL) {
+        perror("Erreur lors de l'ouverture du fichier");
+        return;
+    }
+
+    fprintf(fichier, "Résultats %s %d :\n", nomEpreuve, numQuali);
+    fprintf(fichier, "┌──────┬───────────┬─────────┬─────────┬─────────┬──────────────────┬─────────┬───────┐\n");
+    fprintf(fichier, "│      │  Voiture  │   S1    │   S2    │   S3    │  Meilleur temps  │  STAND  │  OUT  │\n");
+    fprintf(fichier, "├──────┼───────────┼─────────┼─────────┼─────────┼──────────────────┼─────────┼───────┤\n");
+
+    for (int i = 0; i < NOMBRE_VOITURES; i++) {
+        positionCourse += 1;
+        fprintf(fichier, "│ -%-2d- │ %-9d │ %.3f  │ %.3f  │ %.3f  │ %-16.3f │ %d │ %d │\n", positionCourse, voitures[i].numero, voitures[i].temps_S1, voitures[i].temps_S2, voitures[i].temps_S3, voitures[i].meilleur_temps, voitures[i].estStand, voitures[i].estOUT);
+    }
+    fprintf(fichier, "└──────┴───────────┴─────────┴─────────┴─────────┴──────────────────┴─────────┴───────┘\n");
+
+    fclose(fichier);
+}
+
+
+
+
 void init_voitures(const char *nom) {
     int listeVoitures[NOMBRE_VOITURES] = {1, 11, 44, 63, 16, 55, 4, 81, 14, 18, 10, 31, 23, 2, 22, 3, 77, 24, 20, 27};
     if (strcmp(nom, "ALL") == 0){
@@ -381,6 +413,9 @@ void qualificaiton(int numQuali){
         meilleurAffichage();
         sleep(2);
     }
+
+    enregistrerResultats("Qualification", numQuali);
+
 }
 
 
