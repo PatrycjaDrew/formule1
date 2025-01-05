@@ -51,14 +51,14 @@ int sortVoitures(const void *a, const void *b) {
 
 
 
-void enregistrerResultats(const char *nomEpreuve, int numQuali) {
+void enregistrerResultats(const char *nomEpreuve, int numEpreuve) {
     FILE *fichier;
     char nomFichier[50];
 
     qsort(voitures, NOMBRE_VOITURES, sizeof(Voiture), sortVoitures);
     int positionCourse = 0;
 
-    sprintf(nomFichier, "resultats_%s_%d.txt", nomEpreuve, numQuali);
+    sprintf(nomFichier, "resultats_%s_%d.txt", nomEpreuve, numEpreuve);
 
     fichier = fopen(nomFichier, "w");
     if (fichier == NULL) {
@@ -66,7 +66,7 @@ void enregistrerResultats(const char *nomEpreuve, int numQuali) {
         return;
     }
 
-    fprintf(fichier, "Résultats %s %d :\n", nomEpreuve, numQuali);
+    fprintf(fichier, "Résultats %s %d :\n", nomEpreuve, numEpreuve);
     fprintf(fichier, "┌──────┬───────────┬─────────┬─────────┬─────────┬──────────────────┬─────────┬───────┐\n");
     fprintf(fichier, "│      │  Voiture  │   S1    │   S2    │   S3    │  Meilleur temps  │  STAND  │  OUT  │\n");
     fprintf(fichier, "├──────┼───────────┼─────────┼─────────┼─────────┼──────────────────┼─────────┼───────┤\n");
@@ -341,6 +341,7 @@ void essais(int numEssais, int tours_nombre_max){
         meilleurAffichage();
         sleep(2);
     }
+    enregistrerResultats("Essais", numEssais);
 }
 
 
