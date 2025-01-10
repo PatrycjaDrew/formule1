@@ -12,7 +12,7 @@
 #define QUALIF1_TEMPS 1080 // 18 minutes
 #define QUALIF2_TEMPS 900  // 15 minutes
 #define QUALIF3_TEMPS 720  // 12 minutes
-#define ACCELERATION 60 // Accélération : 1 seconde dans le programme = 1 minute simulée
+#define ACCELERATION 60 // Accélération du temps
 
 
 
@@ -30,23 +30,23 @@ typedef struct {
 
 Voiture voitures[NOMBRE_VOITURES];
 
-//trie les voitures pour afficher en premier la voiture avec le meilleurs temps le plus court et en dernier la voiture avec le meilleur temps le plus long
+//trie les voitures en fonction de leur meilleur temps 
 int sortVoitures(const void *a, const void *b) {
     Voiture *voitureA = (Voiture *)a;
     Voiture *voitureB = (Voiture *)b;
 
     // Vérifie si l'une des voitures est OUT
     if (voitureA->estOUT && voitureB->estOUT) {
-        return 0;  // Les deux sont OUT, garde l'ordre
+        return 0;  // si les 2 sont out, on fait rien 
     }
     if (voitureA->estOUT) {
-        return 1;  // voitureA est OUT, elle va en bas
+        return 1;  // si la voiture A est out, elle descend du classement 
     }
     if (voitureB->estOUT) {
-        return -1; // voitureB est OUT, elle va en bas
+        return -1; // si la voiture B est out, elle descend du classement 
     }
 
-    // Trie normalement si aucune des deux n'est OUT
+    // trie si aucune voiture out
     if (voitureA->meilleur_temps < voitureB->meilleur_temps) {
         return -1;
     } else if (voitureA->meilleur_temps > voitureB->meilleur_temps) {
