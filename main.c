@@ -206,9 +206,9 @@ void debutTableau(int numEpreuve, int tour, const char *nomEpreuve) {
             printf("│      │  Voiture  │   S1    │   S2    │   S3    │  Temps actuel  │  Meilleur temps  │   Diff   │  STAND  │  OUT  │\n");
             printf("├──────┼───────────┼─────────┼─────────┼─────────┼────────────────┼──────────────────┼──────────┼─────────┼───────┤\n");
     }else if (strcmp(nomEpreuve, "Course") == 0){
-            printf("╔══════════════╦═══════════════╗\n");
+            printf("╔══════════════╦══════════════╗\n");
             printf("║    Course    ║  Tours : %-2d  ║\n", tour);
-            printf("╚══════════════╩═══════════════╝\n");
+            printf("╚══════════════╩══════════════╝\n");
             printf("┌──────┬───────────┬─────────┬─────────┬─────────┬────────────────┬──────────────────┬──────────┬─────────┬───────┐\n");
             printf("│      │  Voiture  │   S1    │   S2    │   S3    │  Temps actuel  │  Meilleur temps  │   Diff   │  STAND  │  OUT  │\n");
             printf("├──────┼───────────┼─────────┼─────────┼─────────┼────────────────┼──────────────────┼──────────┼─────────┼───────┤\n");
@@ -272,11 +272,20 @@ int genere_nbre_tours(int min, int max) {
 }
 
 
-void arret_stand(int tour, int dureeTotale) {
+void arret_stand(int tour, int dureeTotale, const char *nomEpreuve) {
+
+    int avantDernierTour;
+
+    if (strcmp(nomEpreuve, "Course") == 0){
+        avantDernierTour = dureeTotale - 2;
+    }else{
+        avantDernierTour = dureeTotale / ACCELERATION - 4;
+    }
+
     double temps = 0.0;
     int voiture;
 
-    if(tour < dureeTotale / ACCELERATION - 4){
+    if(tour < avantDernierTour){
         do {
             voiture = genere_nbre_tours(0, NOMBRE_VOITURES);
         } while(voitures[voiture].estOUT); 
@@ -299,8 +308,8 @@ void arret_stand(int tour, int dureeTotale) {
 
 
 //attribue un temps alléatoire entre 25 et 45 secondes pour chaque section pour chaque voiture qui fait la course
-void donne_tempsSecteur(int tour, int dureeTotale){
-    arret_stand(tour, dureeTotale);
+void donne_tempsSecteur(int tour, int dureeTotale, const char *nomEpreuve){
+    arret_stand(tour, dureeTotale, nomEpreuve);
     for (int i = 0; i < NOMBRE_VOITURES; i++) {
         if (!voitures[i].estOUT) {
             voitures[i].temps_S1 = genere_temps(25.0, 45.0);
@@ -353,7 +362,7 @@ void essais(int numEssais) {
         tour++;
         system("clear");
         debutTableau(numEssais, temps_actuel, "Essais");
-        donne_tempsSecteur(temps_actuel, ESSAIS_TEMPS);
+        donne_tempsSecteur(temps_actuel, ESSAIS_TEMPS, "Essais");
 
         qsort(voitures, NOMBRE_VOITURES, sizeof(Voiture), sortVoitures);
 
@@ -385,16 +394,16 @@ void qualificaiton(int numQuali){
     int dureeQualif;
     int voituresOut;
 
-    // Définir la durée et le nombre de voitures restantes en fonction de la qualification
+    // Définir la durée et le nombre de voitures en fonction de la qualification
     if (numQuali == 1) {
         dureeQualif = QUALIF1_TEMPS;
-        voituresOut = NOMBRE_VOITURES - 5; // Q1 -> 15 voitures passent
+        voituresOut = NOMBRE_VOITURES - 5; // Q1
     } else if (numQuali == 2) {
         dureeQualif = QUALIF2_TEMPS;
-        voituresOut = NOMBRE_VOITURES - 10; // Q2 -> 10 voitures passent
+        voituresOut = NOMBRE_VOITURES - 10; // Q2
     } else if (numQuali == 3) {
         dureeQualif = QUALIF3_TEMPS;
-        voituresOut = NOMBRE_VOITURES; // Q3 -> Pas de voitures OUT
+        voituresOut = NOMBRE_VOITURES; // Q3 
     }
 
     while (1) {
@@ -410,7 +419,7 @@ void qualificaiton(int numQuali){
         system("clear");
         init_stand();
         debutTableau(numQuali, temps_ecoule, "Qualification");
-        donne_tempsSecteur(temps_ecoule, dureeQualif);
+        donne_tempsSecteur(temps_ecoule, dureeQualif, "Qualif");
 
         qsort(voitures, NOMBRE_VOITURES, sizeof(Voiture), sortVoitures);
 
@@ -431,7 +440,7 @@ void qualificaiton(int numQuali){
 
             printf("├──────┼───────────┼─────────┼─────────┼─────────┼────────────────┼──────────────────┼──────────┼─────────┼───────┤\n");
             for (int i = NOMBRE_VOITURES - 5; i < NOMBRE_VOITURES; i++) {
-                positionCourse += 1;
+                positionCourse++;
 
                 double tempsDiff = voitures[i].meilleur_temps - voitures[i - 1].meilleur_temps;
 
@@ -444,7 +453,7 @@ void qualificaiton(int numQuali){
             if(numQuali == 2 || numQuali == 3){
 
                 for (int i = 0; i < NOMBRE_VOITURES - 10; i++) {
-                    positionCourse += 1; 
+                    positionCourse++; 
 
                     double tempsDiff = 0.0;
                     if(i > 0){
@@ -456,7 +465,7 @@ void qualificaiton(int numQuali){
 
                 printf("├──────┼───────────┼─────────┼─────────┼─────────┼────────────────┼──────────────────┼──────────┼─────────┼───────┤\n");
                 for (int i = NOMBRE_VOITURES - 10; i < NOMBRE_VOITURES; i++) {
-                    positionCourse += 1;
+                    positionCourse++;
 
                     double tempsDiff = voitures[i].meilleur_temps - voitures[i - 1].meilleur_temps;
 
@@ -487,16 +496,20 @@ void course(){
     
     for(int tour = 1; tour < NBRE_TOURS_COURSE; tour++){
         system("clear");
+        init_stand();
         debutTableau(0, tour, "Course");
-        donne_tempsSecteur(tour, NBRE_TOURS_COURSE);
+        donne_tempsSecteur(tour, NBRE_TOURS_COURSE, "Course");
 
         qsort(voitures, NOMBRE_VOITURES, sizeof(Voiture), sortVoitures);
 
         int positionCourse = 0;
 
         for (int i = 0; i < NOMBRE_VOITURES; i++) {
-            positionCourse += 1;
-            ligneTableau(positionCourse, voitures[i].numero, voitures[i].temps_S1, voitures[i].temps_S2, voitures[i].temps_S3, voitures[i].meilleur_temps);
+            positionCourse++;
+
+            double tempsDiff = voitures[i].meilleur_temps - voitures[i - 1].meilleur_temps;
+
+            ligneTableauQualif(positionCourse, voitures[i].numero, voitures[i].temps_S1, voitures[i].temps_S2, voitures[i].temps_S3, voitures[i].meilleur_temps, tempsDiff, voitures[i].standTemps, voitures[i].estOUT);
         }
         finTableau("Qualification");
 
@@ -534,7 +547,10 @@ void samedi(){
 }
 
 void dimanche(){
-    
+    qsort(voitures, NOMBRE_VOITURES, sizeof(Voiture), sortVoitures);
+    init_voitures("ALL");
+    init_tempsTotal();
+    course();
 }
 
 void weekEndClassic(){
@@ -568,8 +584,7 @@ int main() {
     init_voitures("ALL");
     init_tempsTotal();
 
-    //weekEndClassic();
-    course();
+    weekEndClassic();
 
     return 0;
 }
