@@ -6,7 +6,14 @@
 #include <unistd.h>
 
 #define NOMBRE_VOITURES 20
-#define NBRE_TOURS_QUALI 10
+#define NBRE_TOURS_COURSE 10
+
+#define ESSAIS_TEMPS 3600 
+#define QUALIF1_TEMPS 1080 // 18 minutes
+#define QUALIF2_TEMPS 900  // 15 minutes
+#define QUALIF3_TEMPS 720  // 12 minutes
+#define ACCELERATION 60 // Accélération : 1 seconde dans le programme = 1 minute simulée
+
 
 
 typedef struct {
@@ -185,16 +192,23 @@ void afficher_voitures() {
 void debutTableau(int numEpreuve, int tour, const char *nomEpreuve) {
 
     if (strcmp(nomEpreuve, "Essais") == 0){
-        printf("╔═══════════════════╦═════════════╗\n");
-        printf("║    Essais P%d      ║  TOUR : %-2d  ║\n", numEpreuve, tour);
-        printf("╚═══════════════════╩═════════════╝\n");
+        printf("╔═══════════════════╦═════════════════╗\n");
+        printf("║    Essais P%d      ║  TEMPS : 00:%-2d  ║\n", numEpreuve, tour);
+        printf("╚═══════════════════╩═════════════════╝\n");
         printf("┌──────┬───────────┬─────────┬─────────┬─────────┬────────────────┬──────────────────┐\n");
         printf("│      │  Voiture  │   S1    │   S2    │   S3    │  Temps actuel  │  Meilleur temps  │\n");
         printf("├──────┼───────────┼─────────┼─────────┼─────────┼────────────────┼──────────────────┤\n");
     }else if (strcmp(nomEpreuve, "Qualification") == 0){
-            printf("╔═══════════════════════╦═════════════╗\n");
-            printf("║    Qualification %d    ║  TOUR : %-2d  ║\n", numEpreuve, tour);
-            printf("╚═══════════════════════╩═════════════╝\n");
+            printf("╔═══════════════════════╦═════════════════╗\n");
+            printf("║    Qualification %d    ║  TEMPS : 00:%-2d  ║\n", numEpreuve, tour);
+            printf("╚═══════════════════════╩═════════════════╝\n");
+            printf("┌──────┬───────────┬─────────┬─────────┬─────────┬────────────────┬──────────────────┬──────────┬─────────┬───────┐\n");
+            printf("│      │  Voiture  │   S1    │   S2    │   S3    │  Temps actuel  │  Meilleur temps  │   Diff   │  STAND  │  OUT  │\n");
+            printf("├──────┼───────────┼─────────┼─────────┼─────────┼────────────────┼──────────────────┼──────────┼─────────┼───────┤\n");
+    }else if (strcmp(nomEpreuve, "Course") == 0){
+            printf("╔══════════════╦═══════════════╗\n");
+            printf("║    Course    ║  Tours : %-2d  ║\n", tour);
+            printf("╚══════════════╩═══════════════╝\n");
             printf("┌──────┬───────────┬─────────┬─────────┬─────────┬────────────────┬──────────────────┬──────────┬─────────┬───────┐\n");
             printf("│      │  Voiture  │   S1    │   S2    │   S3    │  Temps actuel  │  Meilleur temps  │   Diff   │  STAND  │  OUT  │\n");
             printf("├──────┼───────────┼─────────┼─────────┼─────────┼────────────────┼──────────────────┼──────────┼─────────┼───────┤\n");
@@ -258,11 +272,11 @@ int genere_nbre_tours(int min, int max) {
 }
 
 
-void arret_stand(int tour) {
+void arret_stand(int tour, int dureeTotale) {
     double temps = 0.0;
     int voiture;
 
-    if(tour < NBRE_TOURS_QUALI - 1){
+    if(tour < dureeTotale / ACCELERATION - 4){
         do {
             voiture = genere_nbre_tours(0, NOMBRE_VOITURES);
         } while(voitures[voiture].estOUT); 
@@ -285,8 +299,8 @@ void arret_stand(int tour) {
 
 
 //attribue un temps alléatoire entre 25 et 45 secondes pour chaque section pour chaque voiture qui fait la course
-void donne_tempsSecteur(int tour){
-    arret_stand(tour);
+void donne_tempsSecteur(int tour, int dureeTotale){
+    arret_stand(tour, dureeTotale);
     for (int i = 0; i < NOMBRE_VOITURES; i++) {
         if (!voitures[i].estOUT) {
             voitures[i].temps_S1 = genere_temps(25.0, 45.0);
@@ -321,37 +335,82 @@ void donne_tempsSecteur(int tour){
 }
 
 //lance un essais
-void essais(int numEssais, int tours_nombre_max){
-    
-    for(int tour = 1; tour < tours_nombre_max; tour++){
+void essais(int numEssais) {
+    time_t debut = time(NULL); // Heure de début de la session
+    time_t actuel;
+
+    int tour = 0;
+    while (1) {
+        actuel = time(NULL);
+        int temps_actuel = (int)difftime(actuel, debut);
+
+        // Arrêt de la session après 1h
+        if (temps_actuel >= ESSAIS_TEMPS / ACCELERATION) {
+            break;
+        }
+
+        // Simuler un tour
+        tour++;
         system("clear");
-        debutTableau(numEssais, tour, "Essais");
-        donne_tempsSecteur(tour);
+        debutTableau(numEssais, temps_actuel, "Essais");
+        donne_tempsSecteur(temps_actuel, ESSAIS_TEMPS);
 
         qsort(voitures, NOMBRE_VOITURES, sizeof(Voiture), sortVoitures);
 
         int positionCourse = 0;
-
         for (int i = 0; i < NOMBRE_VOITURES; i++) {
-            positionCourse += 1;
+            positionCourse++;
             ligneTableau(positionCourse, voitures[i].numero, voitures[i].temps_S1, voitures[i].temps_S2, voitures[i].temps_S3, voitures[i].meilleur_temps);
         }
         finTableau("Essais");
 
         meilleurAffichage();
-        sleep(2);
+
+        sleep(2); 
     }
+
     enregistrerResultats("Essais", numEssais);
 }
 
 
 
+
+
+
 void qualificaiton(int numQuali){
-    for(int tour = 1; tour < NBRE_TOURS_QUALI + 1; tour++){
+    time_t debut = time(NULL);
+    time_t actuel;
+    int tour = 0;
+
+    int dureeQualif;
+    int voituresOut;
+
+    // Définir la durée et le nombre de voitures restantes en fonction de la qualification
+    if (numQuali == 1) {
+        dureeQualif = QUALIF1_TEMPS;
+        voituresOut = NOMBRE_VOITURES - 5; // Q1 -> 15 voitures passent
+    } else if (numQuali == 2) {
+        dureeQualif = QUALIF2_TEMPS;
+        voituresOut = NOMBRE_VOITURES - 10; // Q2 -> 10 voitures passent
+    } else if (numQuali == 3) {
+        dureeQualif = QUALIF3_TEMPS;
+        voituresOut = NOMBRE_VOITURES; // Q3 -> Pas de voitures OUT
+    }
+
+    while (1) {
+        actuel = time(NULL);
+        int temps_ecoule = (int)difftime(actuel, debut);
+
+        // Fin de la qualification si le temps est écoulé
+        if (temps_ecoule >= dureeQualif / ACCELERATION) {
+            break;
+        }
+
+        tour ++;
         system("clear");
         init_stand();
-        debutTableau(numQuali, tour, "Qualification");
-        donne_tempsSecteur(tour);
+        debutTableau(numQuali, temps_ecoule, "Qualification");
+        donne_tempsSecteur(temps_ecoule, dureeQualif);
 
         qsort(voitures, NOMBRE_VOITURES, sizeof(Voiture), sortVoitures);
 
@@ -415,23 +474,51 @@ void qualificaiton(int numQuali){
         sleep(2);
     }
 
+    for (int i = voituresOut; i < NOMBRE_VOITURES; i++) {
+        voitures[i].estOUT = true;
+    }
+
     enregistrerResultats("Qualification", numQuali);
 
 }
 
 
+void course(){
+    
+    for(int tour = 1; tour < NBRE_TOURS_COURSE; tour++){
+        system("clear");
+        debutTableau(0, tour, "Course");
+        donne_tempsSecteur(tour, NBRE_TOURS_COURSE);
+
+        qsort(voitures, NOMBRE_VOITURES, sizeof(Voiture), sortVoitures);
+
+        int positionCourse = 0;
+
+        for (int i = 0; i < NOMBRE_VOITURES; i++) {
+            positionCourse += 1;
+            ligneTableau(positionCourse, voitures[i].numero, voitures[i].temps_S1, voitures[i].temps_S2, voitures[i].temps_S3, voitures[i].meilleur_temps);
+        }
+        finTableau("Qualification");
+
+        meilleurAffichage();
+        sleep(2);
+    }
+    enregistrerResultats("Course", 0);
+}
 
 
-
-
-
-int main() {
-    srand(time(NULL));
+void vendredi(){
+    essais(1);
     init_voitures("ALL");
     init_tempsTotal();
 
-    int nbreTours = genere_nbre_tours(5, 7);
-    essais(1, nbreTours);
+    essais(2);
+    init_voitures("ALL");
+    init_tempsTotal();
+}
+
+void samedi(){
+    essais(3);
     init_voitures("ALL");
     init_tempsTotal();
 
@@ -444,5 +531,45 @@ int main() {
     init_tempsTotal();
 
     qualificaiton(3);
+}
+
+void dimanche(){
+    
+}
+
+void weekEndClassic(){
+    vendredi();
+    samedi();
+    dimanche();
+}
+
+
+void weekEndSpecial(){
+    //essais libre 1h Vendredi matin
+    essais(1);
+    init_voitures("ALL");
+    init_tempsTotal();
+
+    //vendredi après midi qualif sprint
+
+
+    //samedi matin sprint
+
+    //qualif samedi après midi
+    samedi();
+
+    //la course
+    dimanche();
+}
+
+
+int main() {
+    srand(time(NULL));
+    init_voitures("ALL");
+    init_tempsTotal();
+
+    //weekEndClassic();
+    course();
+
     return 0;
 }
