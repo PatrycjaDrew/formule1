@@ -6,14 +6,14 @@
 #include <unistd.h>
 #include <math.h>
 
-#define NOMBRE_VOITURES 20
-#define NBRE_TOURS_COURSE 20
+#define NOMBRE_VOITURES 20 //nombre de voiture dans la course
+#define NBRE_TOURS_COURSE 20 //nombre de tous pour la course
 
-#define ESSAIS_TEMPS 3600 
-#define QUALIF1_TEMPS 1080 // 18 minutes
-#define QUALIF2_TEMPS 900  // 15 minutes
-#define QUALIF3_TEMPS 720  // 12 minutes
-#define ACCELERATION 60 // Accélération du temps
+#define ESSAIS_TEMPS 3600  // 1h
+#define QUALIF1_TEMPS 1080 // 18 min
+#define QUALIF2_TEMPS 900  // 15 min
+#define QUALIF3_TEMPS 720  // 12 min
+#define ACCELERATION 60 // accélération du temps
 
 #define LONGUEUR_CIRCUIT 7.004 //longueur d'un circuit
 #define DISTANCE_SPRINT 100 //longueur d'un sprint pour les weekend spéciaux
@@ -629,7 +629,8 @@ int main() {
     init_voitures("ALL");
     init_tempsTotal();
 
-    weekEndSpecial();
+    weekEndClassic();
+    //weekEndSpecial();
 
     return 0;
 }
